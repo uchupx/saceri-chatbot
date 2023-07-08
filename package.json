@@ -1,0 +1,23 @@
+{
+  "name": "saceri-chatbot",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.21.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "server": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-personal:uchupx/saceri-chatbot.git"
+  },
+  "author": "",
+  "license": "ISC"
+}
