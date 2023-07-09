@@ -100,7 +100,6 @@ async function saveReceivedMessage(message, id) {
       meta: meta,
     })
 
-    console.log(res)
     return true
   } catch (error) {
     console.log(error)
@@ -113,7 +112,6 @@ async function getLastReceivedMessage(contact) {
 
   try {
     let res = await chat.findLastChat(contact.id)
-    console.log(res)
     return res
   } catch (error) {
     console.log(error)
