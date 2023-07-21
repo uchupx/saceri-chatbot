@@ -1,6 +1,6 @@
 import WAWebJS from "whatsapp-web.js";
 import qrcode from 'qrcode-terminal';
-import { Database } from "./app/database/connection.js";
+import { Database, DBTYPE } from "./app/database/connection.js";
 import { handle } from "./app/index.js";
 
 
@@ -9,7 +9,7 @@ const client = new Client({
   authStrategy: new LocalAuth()
 });
 
-const database = new Database('asdasd')
+const database = new Database('asdasd', 'sqlite')
 
 client.on(Events.QR_RECEIVED, (qr) => {
   console.log('QR RECEIVED', qr);

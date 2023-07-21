@@ -1,7 +1,15 @@
+export const DBTYPE = {
+  MYSQL: String,
+  SQLITE: String,
+}
+
 export class Database {
   constructor(host: string)
 
-  connection
+  public connection
+  protected type
 
-  execute(query: string, args: any[])
+  public execute(query: string, args: any[])
+  protected mysqlExec(query: string, args: any[], callback: (err: error, results: any) => any)
+  protected sqliteExec(query: string, args: any[], callback: (results: any, err: error) => any)
 }

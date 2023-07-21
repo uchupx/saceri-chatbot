@@ -8,13 +8,19 @@ const saceriGroupID = '120363041516540587@g.us'
 const { MessageTypes } = WA
 
 let database
-export async function handle(client, message, conn) {
+let client
+export async function handle(cl, message, conn) {
   database = conn
-  if (message.type != MessageTypes.TEXT) {
+  client = cl
+
+
+  // && message.from !== '6288211263092@c.us' && message.from !== '6281296428585@c.us' && message.from !== '6289604914960@c.us' && message.from !== '62895328681181@c.us' && message.from !== '6282297108701@c.us' && message.from !== '6289604304520@c.us' && message.from !== '6289529824707@c.us' && message.from !== '6282295753639@c.us') 
+  if (message.from !== '6285313843602@c.us') {
     return
   }
-
-  if (message.from !== '6285313843602@c.us' && message.from !== '6281296428585@c.us' && message.from !== '6289604914960@c.us' && message.from !== '62895328681181@c.us' && message.from !== '6282297108701@c.us' && message.from !== '6289604304520@c.us' && message.from !== '6289529824707@c.us' && message.from !== '6282295753639@c.us') {
+  console.log(message.type)
+  console.log(message)
+  if (message.type != MessageTypes.TEXT) {
     return
   }
 
@@ -27,24 +33,20 @@ export async function handle(client, message, conn) {
   const lastChat = await getLastReceivedMessage(contact)
 
   if (lastChat.id > 0 && lastChat.message != "reset") {
-    console.log("masuk.ga")
-    console.log(message.body == "1")
-    console.log(message.body == "2")
-    console.log(message.body == "3")
     switch (message.body) {
       case "1":
-        client.sendMessage(message.from, MESSAGES.UPDATE)
+        sendMessage(message.from, MESSAGES.UPDATE, "#greeting")
         break;
       case "2":
-        client.sendMessage(message.from, MESSAGES.CONFIRM)
+        sendMessage(message.from, MESSAGES.CONFIRM, "#confirm")
         break;
       case '3':
-        client.sendMessage(message.from, MESSAGES.LIVE)
-        client.sendMessage(testGroupId, "ada yg mau konsul niiii dari " + contact.name)
-        client.sendMessage(saceriGroupID, "ada yg mau konsul niiii dari " + contact.name)
+        sendMessage(message.from, MESSAGES.LIVE, "#consul")
+        sendMessage(testGroupId, "ada yg mau konsul niiii dari " + contact.name, "#consul")
+        // sendMessage(saceriGroupID, "ada yg mau konsul niiii dari " + contact.name, "#consul")
         break;
       case "reset":
-        client.sendMessage(message.from, "WOKE TAK RESET COBA KIRIM LAGI")
+        sendMessage(message.from, "WOKE TAK RESET COBA KIRIM LAGI", "#reset")
       default:
         break;
     }
@@ -59,6 +61,7 @@ export async function handle(client, message, conn) {
 async function isContactSaved(id) {
   const contacts = new ContactModel(database)
   const contact = await contacts.findByWhatsappId(id)
+  console.log(contact)
 
   return contact
 }
@@ -71,10 +74,11 @@ async function createNewContact(message) {
     let payload = {
       whatsapp_id: message.from,
       name: cc.pushname,
-      // created_at: message.from,
+      created_at: Date()
     }
 
     let res = await c.insert(payload)
+    console.log(res)
 
     payload.id = res
 
@@ -98,6 +102,7 @@ async function saveReceivedMessage(message, id) {
       message: message.body.replace(/[\u0800-\uFFFF]/g, ''),
       message_type: message.type,
       meta: meta,
+      created_at: Date()
     })
 
     return true
@@ -126,4 +131,28 @@ function JSON_stringify(s, emit_unicode) {
       return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
     }
   );
+}
+
+
+async function sendMessage(to, body, tag) {
+  client.sendMessage(to, body)
+  const chat = new ChatModel(database)
+
+  try {
+    let res = await chat.insert({
+      contact_id: 0,
+      to_wa: to,
+      chat_type: "SEND",
+      tags: tag,
+      message: body.replace(/[\u0800-\uFFFF]/g, ''),
+      message_type: "text",
+      meta: "",
+      created_at: Date()
+    })
+
+    return true
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
 }
