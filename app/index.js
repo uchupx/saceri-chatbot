@@ -33,6 +33,7 @@ export async function handle(cl, message, conn) {
   }
 
   const lastChat = await getLastReceivedMessage(contact)
+  const lastSendChat = await getLastSentMessage(contact)
 
   if (lastChat.id > 0 && lastChat.message != "reset") {
     switch (message.body) {
@@ -123,6 +124,19 @@ async function getLastReceivedMessage(contact) {
     return res
   } catch (error) {
     // console.log(error)
+    throw error
+  }
+}
+
+async function getLastSentMessage() {
+  const chat = new ChatModel(database)
+  let d = new Date()
+  d.setHours(d.getHours() - 1)
+
+  try {
+    let res = await chat.findLastChat(0, 'SENT', helper.dateToString(d))
+    return res
+  } catch (error) {
     throw error
   }
 }

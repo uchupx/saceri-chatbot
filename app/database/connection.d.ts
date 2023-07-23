@@ -10,6 +10,4 @@ export class Database {
   protected type
 
   public execute(query: string, args: any[])
-  protected mysqlExec(query: string, args: any[], callback: (err: error, results: any) => any)
-  protected sqliteExec(query: string, args: any[], callback: (results: any, err: error) => any)
 }

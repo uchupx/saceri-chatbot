@@ -9,7 +9,7 @@ const client = new Client({
   authStrategy: new LocalAuth()
 });
 
-const database = new Database('asdasd', 'sqlite')
+const database = new Database('app/database/saceri.db', 'sqlite')
 
 client.on(Events.QR_RECEIVED, (qr) => {
   console.log('QR RECEIVED', qr);
@@ -24,5 +24,5 @@ client.on(Events.MESSAGE_RECEIVED, (message) => {
   handle(client, message, database)
   return
 })
-// client.sendMessage()
+
 client.initialize();

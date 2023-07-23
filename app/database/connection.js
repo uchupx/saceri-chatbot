@@ -25,7 +25,7 @@ export class Database {
       case DBTYPE.SQLITE:
         sequelize = new Sequelize({
           dialect: 'sqlite',
-          storage: 'app/database/saceri.db'
+          storage: host
         });
 
         this.connection = sequelize
@@ -34,10 +34,10 @@ export class Database {
         sequelize = new Sequelize({
           dialect: 'mysql',
           dialectOptions: {
-            host: 'localhost',
-            user: 'root',
-            password: '',
-            database: 'node_js_crud'
+            host: host.host,
+            user: host.user,
+            password: host.password,
+            database: host.database
           }
         })
 
@@ -46,14 +46,10 @@ export class Database {
       default:
         console.log("No type")
         process.exit()
-      // break;
     }
 
     this.migrator()
   }
-
-
-
 
   execute(query, args) {
     return this.connection.query(query, { replacements: args, }).then(([results, metadata]) => {
@@ -68,10 +64,8 @@ export class Database {
     })
   }
 
-
   migrator() {
     for (let i in MIGRATOR_QUERY.SQLITE) {
-      // console.log(MIGRATOR_QUERY.SQLITE[i])
       this.execute(MIGRATOR_QUERY.SQLITE[i])
     }
   }
