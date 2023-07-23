@@ -13,6 +13,6 @@ export interface Chat {
 }
 
 export class ChatModel extends Model {
-  findLastChat(from: string): Chat
+  findLastChat(from: string, date: string): Chat
   insert(chat: Chat): number
 }

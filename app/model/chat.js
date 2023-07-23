@@ -1,8 +1,8 @@
 import { Model } from "./model.js"
 
-const findLastReceiveChatQuery = "SELECT * FROM chats WHERE contact_id = ? and chat_type = 'RECEIVED' ORDER BY created_at desc"
-const findLastSentChatQuery = "SELECT * FROM chats WHERE contact_id = ? and chat_type = 'SENT' ORDER BY created_at desc"
-const insertQuery = "INSERT INTO chats(contact_id,to_wa,chat_type,tags,message,message_type,meta,created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+const findLastReceiveChatQuery = "SELECT * FROM chats WHERE contact_id = ? and chat_type = ? and created_at > ?  ORDER BY created_at desc"
+// const findLastSentChatQuery = "SELECT * FROM chats WHERE contact_id = ? and chat_type = 'SENT' ORDER BY created_at desc"
+const insertQuery = "INSERT INTO chats(contact_id,to_wa,chat_type,tags,message,message_type,meta,created_at) VALUES(?, ?, ?, ?, ?, ?, ?, datetime('now'))"
 
 export const Chat = {
   id: 0,
@@ -18,8 +18,8 @@ export const Chat = {
 
 export class ChatModel extends Model {
 
-  async findLastChat(from) {
-    let res = await this.database.execute(findLastReceiveChatQuery, [from])
+  async findLastChat(from, type, date) {
+    let res = await this.database.execute(findLastReceiveChatQuery, [from, type, date])
 
     if (res != null && res.length > 0) {
       const rows = res[0]
@@ -42,8 +42,7 @@ export class ChatModel extends Model {
   async insert(chat) {
     try {
       console.log(chat.message)
-      let res = await this.database.execute(insertQuery, [chat.contact_id, chat.to_wa, chat.chat_type, chat.tags, chat.message, chat.message_type, chat.meta, chat.created_at])
-
+      let res = await this.database.execute(insertQuery, [chat.contact_id, chat.to_wa, chat.chat_type, chat.tags, chat.message, chat.message_type, chat.meta])
       return res.lastID
     } catch (error) {
       return error

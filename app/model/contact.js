@@ -2,7 +2,7 @@ import { Model } from "./model.js";
 
 const findByIdQuery = "SELECT * FROM contacts WHERE id = ?"
 const findByWhatsappIdQuery = "SELECT * FROM contacts WHERE whatsapp_id = ?"
-const insertQuery = "INSERT INTO contacts(whatsapp_id, name, created_at) VALUES (?,?, ?)"
+const insertQuery = "INSERT INTO contacts(whatsapp_id, name, created_at) VALUES (?,?, datetime('now'))"
 
 export const Contact = {
   id: 0,
@@ -34,7 +34,6 @@ export class ContactModel extends Model {
 
   async findByWhatsappId(id) {
     let res = await this.database.execute(findByWhatsappIdQuery, [id])
-    console.log(res)
     if (res != null && res.length > 0) {
       const rows = res[0]
       return {
@@ -55,8 +54,7 @@ export class ContactModel extends Model {
 
   async insert(contact) {
     try {
-      let res = await this.database.execute(insertQuery, [contact.whatsapp_id, contact.name, contact.created_at])
-      console.log(res)
+      let res = await this.database.execute(insertQuery, [contact.whatsapp_id, contact.name])
       return res.lastID ? res.lastID : 0
     } catch (error) {
       return error

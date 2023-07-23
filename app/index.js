@@ -2,6 +2,7 @@ import WA from "whatsapp-web.js";
 import { MESSAGES } from "./messages.js";
 import { ChatModel } from "./model/chat.js";
 import { ContactModel } from "./model/contact.js";
+import * as helper from './helper/helper.js'
 
 const testGroupId = '120363164246575661@g.us'
 const saceriGroupID = '120363041516540587@g.us'
@@ -9,18 +10,19 @@ const { MessageTypes } = WA
 
 let database
 let client
+
 export async function handle(cl, message, conn) {
   database = conn
   client = cl
 
+  let media = null
 
   // && message.from !== '6288211263092@c.us' && message.from !== '6281296428585@c.us' && message.from !== '6289604914960@c.us' && message.from !== '62895328681181@c.us' && message.from !== '6282297108701@c.us' && message.from !== '6289604304520@c.us' && message.from !== '6289529824707@c.us' && message.from !== '6282295753639@c.us') 
   if (message.from !== '6285313843602@c.us') {
     return
   }
-  console.log(message.type)
-  console.log(message)
-  if (message.type != MessageTypes.TEXT) {
+
+  if (message.type != MessageTypes.TEXT && message.type != MessageTypes.IMAGE) {
     return
   }
 
@@ -57,11 +59,10 @@ export async function handle(cl, message, conn) {
   saveReceivedMessage(message, contact.id)
 }
 
-
 async function isContactSaved(id) {
   const contacts = new ContactModel(database)
   const contact = await contacts.findByWhatsappId(id)
-  console.log(contact)
+  // console.log(contact)
 
   return contact
 }
@@ -78,7 +79,7 @@ async function createNewContact(message) {
     }
 
     let res = await c.insert(payload)
-    console.log(res)
+    // console.log(res)
 
     payload.id = res
 
@@ -91,10 +92,10 @@ async function createNewContact(message) {
 
 async function saveReceivedMessage(message, id) {
   const chat = new ChatModel(database)
-  const meta = JSON_stringify(message, false)
+  const meta = helper.json_stringify(message, false)
 
   try {
-    let res = await chat.insert({
+    await chat.insert({
       contact_id: id,
       to_wa: message.from,
       chat_type: "RECEIVED",
@@ -114,28 +115,27 @@ async function saveReceivedMessage(message, id) {
 
 async function getLastReceivedMessage(contact) {
   const chat = new ChatModel(database)
+  let d = new Date()
+  d.setHours(d.getHours() - 1)
 
   try {
-    let res = await chat.findLastChat(contact.id)
+    let res = await chat.findLastChat(contact.id, 'RECEIVED', helper.dateToString(d))
     return res
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     throw error
   }
 }
 
-function JSON_stringify(s, emit_unicode) {
-  var json = JSON.stringify(s);
-  return emit_unicode ? json : json.replace(/[\u007f-\uffff]/g,
-    function (c) {
-      return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
+async function sendMessage(to, body, tag, content = null) {
+  let tmp = null
+  if (content != null) {
+    tmp = {
+      media: content
     }
-  );
-}
+  }
 
-
-async function sendMessage(to, body, tag) {
-  client.sendMessage(to, body)
+  client.sendMessage(to, body, tmp)
   const chat = new ChatModel(database)
 
   try {
