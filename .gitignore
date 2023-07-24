@@ -2,3 +2,4 @@
 /.wwebjs_cache
 /node_modules
 *.db
+.env

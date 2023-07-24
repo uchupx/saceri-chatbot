@@ -2,14 +2,30 @@ import WAWebJS from "whatsapp-web.js";
 import qrcode from 'qrcode-terminal';
 import { Database, DBTYPE } from "./app/database/connection.js";
 import { handle } from "./app/index.js";
+import * as Config from "./app/config/index.js";
 
-
+const config = Config.getConfig()
 const { Client, LocalAuth, Events } = WAWebJS;
 const client = new Client({
   authStrategy: new LocalAuth()
 });
 
-const database = new Database('app/database/saceri.db', 'sqlite')
+let database = null
+switch (config.driver) {
+  case 'sqlite':
+    database = new Database(config.host, 'sqlite')
+    break;
+  case 'mysql':
+    database = new Database({
+      host: config.host,
+      user: config.user,
+      password: config.password,
+      database: config.database,
+    }, 'mysql')
+    break;
+  default:
+    process.exit()
+}
 
 client.on(Events.QR_RECEIVED, (qr) => {
   console.log('QR RECEIVED', qr);
