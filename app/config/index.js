@@ -6,7 +6,9 @@ var config = {
   user: "",
   password: "",
   database: "",
-  env: ""
+  testContact: "",
+  targetTestContact: "",
+  env: "",
 }
 
 
@@ -19,6 +21,8 @@ export function getConfig() {
     user: process.env.USER,
     password: process.env.PASSWORD,
     database: process.env.DATABASE,
+    testContact: process.env.TEST_CONTACT,
+    targetTestContact: process.env.TEST_TARGET_CONTACT,
     env: process.env.ENV
   }
 }

@@ -1,5 +1,6 @@
 /.wwebjs_auth
 /.wwebjs_cache
 /node_modules
+/.vscode
 *.db
 .env

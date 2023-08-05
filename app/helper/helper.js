@@ -1,7 +1,7 @@
 
 // convert date to string with format (YYYY-MM-DD HH:mm)
 export function dateToString(date) {
-  return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes()
+  return date.getUTCFullYear() + '-' + (date.getUTCMonth() > 9 ? date.getUTCMonth() + 1 : '0' + date.getUTCMonth() + 1) + '-' + date.getUTCDate() + ' ' + date.getUTCHours() + ':' + date.getUTCMinutes()
 }
 
 export function json_stringify(s, emit_unicode) {
@@ -12,3 +12,5 @@ export function json_stringify(s, emit_unicode) {
     }
   );
 }
+
+// export function 

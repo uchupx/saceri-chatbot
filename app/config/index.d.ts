@@ -5,6 +5,8 @@ type config = {
   user: String,
   password: String,
   database: String,
+  testContact: String,
+  targetTestContact: String,
   env: String
 }
 

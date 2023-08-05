@@ -13,7 +13,7 @@ const client = new Client({
 let database = null
 switch (config.driver) {
   case 'sqlite':
-    database = new Database(config.host, 'sqlite')
+    database = new Database(config.host, DBTYPE.SQLITE)
     break;
   case 'mysql':
     database = new Database({
@@ -36,9 +36,16 @@ client.on(Events.READY, () => {
   console.log('Client is ready!');
 });
 
-client.on(Events.MESSAGE_RECEIVED, (message) => {
-  handle(client, message, database)
-  return
-})
+if (config.env == "me") {
+  client.on(Events.MESSAGE_CREATE, (message) => {
+    handle(client, message, database)
+    return
+  })
+} else {
+  client.on(Events.MESSAGE_RECEIVED, (message) => {
+    handle(client, message, database)
+    return
+  })
+}
 
 client.initialize();

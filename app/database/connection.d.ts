@@ -1,7 +1,9 @@
-export const DBTYPE = {
+export type typeDB = {
   MYSQL: String,
   SQLITE: String,
 }
+
+export const DBTYPE: typeDB
 
 export class Database {
   constructor(host: string)

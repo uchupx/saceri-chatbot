@@ -13,7 +13,14 @@ export const DBTYPE = {
   MYSQL: "mysql",
   SQLITE: "sqlite"
 }
-
+/**
+ * Database connection
+ * currently only support sqlite and mysql
+ * @param {string} host
+ * @param {string} type
+ * @returns {Database}
+ * 
+ */
 export class Database {
   connection;
   type;
@@ -23,25 +30,10 @@ export class Database {
     this.type = type
     switch (type) {
       case DBTYPE.SQLITE:
-        sequelize = new Sequelize({
-          dialect: 'sqlite',
-          storage: host
-        });
-
-        this.connection = sequelize
+        this.connection = this.sqliteConnection(host)
         break;
       case DBTYPE.MYSQL:
-        sequelize = new Sequelize({
-          dialect: 'mysql',
-          dialectOptions: {
-            host: host.host,
-            user: host.user,
-            password: host.password,
-            database: host.database
-          }
-        })
-
-        this.connection = sequelize
+        this.connection = this.mysqlConnection(host)
         break
       default:
         console.log("No type")
@@ -68,6 +60,32 @@ export class Database {
     for (let i in MIGRATOR_QUERY.SQLITE) {
       this.execute(MIGRATOR_QUERY.SQLITE[i])
     }
+  }
+
+
+  /**
+   * Create sqlite connection
+   */
+  sqliteConnection(host) {
+    return new Sequelize({
+      dialect: 'sqlite',
+      storage: host
+    });
+  }
+
+  /**
+   * Create mysql connection
+   */
+  mysqlConnection(host) {
+    return new Sequelize({
+      dialect: 'mysql',
+      dialectOptions: {
+        host: host.host,
+        user: host.user,
+        password: host.password,
+        database: host.database
+      }
+    })
   }
 
   isSelect(query) {
