@@ -6,7 +6,6 @@ import { UseCase } from "./use_cases/index.js";
 import * as helper from './helper/helper.js'
 import * as config from './config/index.js'
 
-const testGroupId = '120363164246575661@g.us'
 const saceriGroupID = '120363041516540587@g.us'
 const { MessageTypes } = WA
 
@@ -39,18 +38,15 @@ export async function handle(cl, message, conn) {
 
   const USECASE = new UseCase(message, client, database)
   if (lastChat.id > 0 && lastChat.message != "reset") {
-    switch (message.body) {
+    switch (findCase(lastChat, message, lastSendChat)) {
       case "1":
         sendMessage(from, MESSAGES.UPDATE, "#update")
         break;
       case "2":
-        // sendMessage(from, MESSAGES.CONFIRM, "#confirm")
         USECASE.case2(lastChat, lastSendChat)
         break;
       case '3':
         sendMessage(from, MESSAGES.LIVE, "#consul")
-        // sendMessage(testGroupId, "ada yg mau konsul niiii dari " + contact.name, "#consul")
-        // sendMessage(saceriGroupID, "ada yg mau konsul niiii dari " + contact.name, "#consul")
         break;
       case "reset":
         sendMessage(from, "WOKE TAK RESET COBA KIRIM LAGI", "#reset")
@@ -69,7 +65,6 @@ export async function handle(cl, message, conn) {
 async function isContactSaved(id) {
   const contacts = new ContactModel(database)
   const contact = await contacts.findByWhatsappId(id)
-  // console.log(contact)
 
   return contact
 }
@@ -139,7 +134,7 @@ async function getLastSentMessage() {
   d.setHours(d.getHours() - 1)
 
   try {
-    let res = await chat.findLastChat(0, 'SENT', helper.dateToString(d))
+    let res = await chat.findLastChat(0, 'SEND', helper.dateToString(d))
     return res
   } catch (error) {
     throw error
@@ -182,4 +177,26 @@ function isDebug() {
 
 function isHasTestingContact(from) {
   return from == config.getConfig().testContact
+}
+
+
+
+function findCase(lastChat, message, lastSendChat) {
+  if (lastChat.message == "reset") {
+    return "reset"
+  }
+
+  if (message.body == "1") {
+    return "1"
+  }
+
+  if (lastSendChat.tags == "#confirm" || message.body == "2") {
+    return "2"
+  }
+
+  if (message.body == "3") {
+    return "3"
+  }
+
+  return "0"
 }

@@ -1,4 +1,4 @@
-import { Model } from "./model";
+import { Model } from "./model.js";
 
 const getDonationsQuery = "SELECT * FROM donations WHERE .... ORDER BY created_at desc"
 const getLast10DonationsQuery = "SELECT * FROM donations WHERE event_id = ? ORDER BY created_at desc LIMIT 10"

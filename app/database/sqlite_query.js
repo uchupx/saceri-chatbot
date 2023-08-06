@@ -28,6 +28,7 @@ const createEvents = `CREATE TABLE IF NOT EXISTS events(
 const createDonations = `CREATE TABLE IF NOT EXISTS donations(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   event_id varchar(255) not null,
+  contact_id varchar(255) not null,
   total int(11),
   meta text,
   created_at datetime

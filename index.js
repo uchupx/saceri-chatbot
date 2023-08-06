@@ -36,16 +36,10 @@ client.on(Events.READY, () => {
   console.log('Client is ready!');
 });
 
-if (config.env == "me") {
-  client.on(Events.MESSAGE_CREATE, (message) => {
-    handle(client, message, database)
-    return
-  })
-} else {
-  client.on(Events.MESSAGE_RECEIVED, (message) => {
-    handle(client, message, database)
-    return
-  })
-}
+
+client.on(Events.MESSAGE_RECEIVED, (message) => {
+  handle(client, message, database)
+  return
+})
 
 client.initialize();
