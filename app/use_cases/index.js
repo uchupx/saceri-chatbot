@@ -1,10 +1,7 @@
-// import { useCase as case_2 } from "./case2.js"
 import { DonationModel } from "../model/donations.js";
 import { MESSAGES } from "./../messages.js";
 import { ChatModel } from "./../model/chat.js";
 import { EventModel } from "./../model/event.js";
-// import { DonationModel } from "../model/donations.js";
-
 
 const testGroupId = '120363164246575661@g.us'
 const testGroupId2 = '120363162514069329@g.us'
