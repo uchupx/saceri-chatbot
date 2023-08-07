@@ -16,7 +16,7 @@ let client
 export async function handle(cl, message, conn) {
   database = conn
   client = cl
-  console.log(message)
+  // console.log(message)
   let media = null
   let from = message.from
   if (isDebug() && !isHasTestingContact(from)) {
@@ -29,15 +29,15 @@ export async function handle(cl, message, conn) {
 
   let contact = await isContactSaved(message.from)
   if (contact.id === 0) {
-    console.log("contact is not exist")
+    // console.log("contact is not exist")
     contact = await createNewContact(message)
   }
 
-  const lastChat = await getLastReceivedMessage(contact)
-  const lastSendChat = await getLastSentMessage(contact)
+  const lastChat = await findLastReceivedMessage(contact)
+  const lastSendChat = await findLastSentMessage(contact)
 
   const USECASE = new UseCase(message, client, database)
-  if (lastChat.id > 0 && lastChat.message != "reset") {
+  if (lastChat.id > 0 && (lastChat.message != "reset" || message.body == "reset")) {
     switch (findCase(lastChat, message, lastSendChat)) {
       case "1":
         sendMessage(from, MESSAGES.UPDATE, "#update")
@@ -49,7 +49,7 @@ export async function handle(cl, message, conn) {
         sendMessage(from, MESSAGES.LIVE, "#consul")
         break;
       case "reset":
-        sendMessage(from, "WOKE TAK RESET COBA KIRIM LAGI", "#reset")
+        sendMessage(from, "", "#reset")
         break;
       default:
         client.sendMessage(from, MESSAGES.GREETINGS)
@@ -86,7 +86,7 @@ async function createNewContact(message) {
 
     return payload
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     throw error
   }
 }
@@ -109,12 +109,12 @@ async function saveReceivedMessage(message, id) {
 
     return true
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     throw error
   }
 }
 
-async function getLastReceivedMessage(contact) {
+async function findLastReceivedMessage(contact) {
   const chat = new ChatModel(database)
   let d = new Date()
   d.setHours(d.getHours() - 1)
@@ -128,7 +128,7 @@ async function getLastReceivedMessage(contact) {
   }
 }
 
-async function getLastSentMessage() {
+async function findLastSentMessage() {
   const chat = new ChatModel(database)
   let d = new Date()
   d.setHours(d.getHours() - 1)

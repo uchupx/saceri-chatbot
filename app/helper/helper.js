@@ -20,4 +20,8 @@ export function json_stringify(s, emit_unicode) {
   );
 }
 
+export function split_string_by_line(s) {
+  return s.split(/\r?\n/)
+}
+
 // export function 

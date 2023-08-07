@@ -2,6 +2,7 @@ import { DonationModel } from "../model/donations.js";
 import { MESSAGES } from "./../messages.js";
 import { ChatModel } from "./../model/chat.js";
 import { EventModel } from "./../model/event.js";
+import * as helper from './../helper/helper.js'
 
 const testGroupId = '120363164246575661@g.us'
 const testGroupId2 = '120363162514069329@g.us'
@@ -21,14 +22,15 @@ export class UseCase {
     const message = this.messsage
     const event = await this.findLastEvent()
 
-    if (event == null) {
-      this.sendMessage(message.from, "Mohon maaf untuk saat ini belum ada event donasi yang tersedia", "#confirm")
-      return
-    }
+    // if (event == null) {
+    //   this.sendMessage(message.from, "Mohon maaf untuk saat ini belum ada event donasi yang tersedia", "#confirm")
+    //   return
+    // }
 
     if (lasSent.tags == "#confirm") {
       if (this.checkIsDonationTemplate(message.body)) {
         const phoneNumber = message.from.replace("@c.us", "")
+        const total = this.getDonationInt(message.body)
         this.sendMessage(testGroupId2, "ada yg mau donasi ni dari " + phoneNumber, "#donasi")
         this.sendMessage(message.from, "Terimakasih telah melakukan konfirmasi donasi, mohon kesediannya untuk menunggu Minceri membalas pesan anda.", "#confirm")
       }
@@ -100,6 +102,23 @@ export class UseCase {
       return res
     } catch (error) {
       throw error
+    }
+  }
+
+  getIntFromString(str) {
+    let regex = /\d+/g
+    let res = str.match(regex)
+
+    return res
+  }
+
+  getDonationInt(body) {
+    const lines = helper.split_string_by_line(body)
+    for (let i = 0; i < lines.length; i++) {
+      const element = lines[i];
+      if (element.includes("Donasi")) {
+        return this.getIntFromString(element)
+      }
     }
   }
 }

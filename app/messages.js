@@ -14,7 +14,7 @@ const updateMessages = `Hai, Terimakasih telah mencari tau update acara saceri, 
 const confirmMessages = `Hai, Terimakasih telah melakukan konfirmasi donasi, 
 mohon kesediannya untuk mengisi format donasi sebagai berikut :
 - Nama Pendonasi :
-- Donasi	 :
+- Donasi :
 - Tanggal Donasi :
 `
 
