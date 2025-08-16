@@ -1,6 +1,9 @@
 /.wwebjs_auth
 /.wwebjs_cache
 /node_modules
+/vendor
 /.vscode
 *.db
 .env
+.aider*
+.idea/
