@@ -1,0 +1,35 @@
+version: '3.9'
+name: saceri-chatbot
+
+services:
+  chatbot:
+    build:
+      context: .
+    volumes:
+      - ${ENV_FILE}:/root/.env:Z
+    depends_on:
+      - chatbot-db
+    networks:
+      - saceri-net
+
+  chatbot-db:
+    image: postgres:latest
+    container_name: postgres_container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: "123456"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - saceri-net
+
+networks:
+  saceri-net:
+    driver: bridge
+    name: saceri-net
+    external: true
+
+volumes:
+  postgres_data:
+    driver: local
