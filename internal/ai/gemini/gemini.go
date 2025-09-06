@@ -57,7 +57,7 @@ func NewGemini(params GeminiParams) *Gemini {
 	}
 }
 
-func (g Gemini) Chat(userInput string, history []*genai.Content) (*string, []*genai.Content, error) {
+func (g Gemini) Chat(prompt string, userInput string, history []*genai.Content) (*string, []*genai.Content, error) {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(g.key))
 
@@ -71,9 +71,10 @@ func (g Gemini) Chat(userInput string, history []*genai.Content) (*string, []*ge
 	chat := model.StartChat()
 
 	if len(history) == 0 {
+		fmt.Println(prompt)
 		history = append(history, &genai.Content{
 			Role:  "model",
-			Parts: []genai.Part{genai.Text(g.baseContext)},
+			Parts: []genai.Part{genai.Text(prompt)},
 		})
 	}
 
@@ -87,12 +88,11 @@ func (g Gemini) Chat(userInput string, history []*genai.Content) (*string, []*ge
 	if len(resp.Candidates) > 0 && len(resp.Candidates[0].Content.Parts) > 0 {
 		if text, ok := resp.Candidates[0].Content.Parts[0].(genai.Text); ok {
 			history = append(history, &genai.Content{
-				Role: "user",
+				Role:  "user",
 				Parts: []genai.Part{genai.Text(userInput)},
 			})
 
 			history = append(history, resp.Candidates[0].Content)
-
 
 			responseText := string(text)
 			return &responseText, history, nil
@@ -132,4 +132,30 @@ func (g Gemini) History(contents []*genai.Content) []ai.HistoryJSON {
 	}
 
 	return histories
+}
+
+func (g Gemini) CountToken(contents []*genai.Content) (int32, error) {
+
+	ctx := context.Background()
+	client, err := genai.NewClient(ctx, option.WithAPIKey(g.key))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer client.Close()
+
+	model := client.GenerativeModel(g.model)
+
+	var parts []genai.Part
+	for _, c := range contents {
+		parts = append(parts, c.Parts...)
+	}
+
+	resp, err := model.CountTokens(ctx, parts...)
+	if err != nil {
+		return 0, err
+	}
+
+	return resp.TotalTokens, nil
 }

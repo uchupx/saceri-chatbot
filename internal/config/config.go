@@ -19,6 +19,10 @@ type Config struct {
 		Key   string
 	}
 
+	Default struct {
+		Context          string
+		IntroduceMessage string
+	}
 	Redis struct {
 		Host              string
 		Port              int
@@ -71,9 +75,11 @@ func new() *Config {
 	config.Redis.DatabaseSecondary = os.Getenv("REDIS_SECONDARY_DB")
 	config.Redis.PoolSize = os.Getenv("REDIS_POOL_SIZE")
 	config.Redis.MinIdleConn = os.Getenv("REDIS_MIN_IDLE_CONN")
+
+	config.Default.Context = os.Getenv("DEFAULT_CONTEXT")
+	config.Default.IntroduceMessage = os.Getenv("DEFAULT_INTRODUCE_MESSAGE")
 	return config
 }
-
 
 func GetConfig() *Config {
 	if config == nil {

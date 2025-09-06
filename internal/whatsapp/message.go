@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/uchupx/saceri-chatbot/internal/ai"
+	"github.com/uchupx/saceri-chatbot/internal/config"
 	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
@@ -107,7 +108,7 @@ func (wa WhatsApp) EventMessage(evt *events.Message) {
 	if histories == nil {
 		wa.log.Infof("start new conversation with %s", evt.Info.Sender.String())
 
-		wa.sendMessage(ctx, senderID, "Hi Salam kenal, disini minceri apa ada yang bisa minceri bantu. kamu bisa tanya terkait kegiatan kegiatan amal yang akan datang, atau kamu bisa donasi ke rekening ini BCA 123123123123123 a/n Minceri Saceri. untuk langsung terhubung ke admin minceri kamu bisa kirim pesan, hi admin minceri")
+		wa.sendMessage(ctx, senderID, wa.GetIntroduceMessage())
 
 		if err := wa.SetConversation(ctx, senderID.String(), "[]"); err != nil {
 			wa.log.Errorf("failed to set conversation key: %+v", err)
@@ -120,12 +121,21 @@ func (wa WhatsApp) EventMessage(evt *events.Message) {
 
 	message := wa.getMessage(evt)
 
-	ownMessage, updatedHistories, err := wa.ai.Chat(message, wa.ai.BuildHistory(histories))
+	ownMessage, updatedHistories, err := wa.ai.Chat(wa.GetPromptContext(), message, wa.ai.BuildHistory(histories))
 	if err != nil {
 		wa.log.Errorf("failed to get response from gemini: %+v", err)
 
 		return
 	}
+
+	tokens, err := wa.ai.CountToken(updatedHistories)
+	if err != nil {
+		wa.log.log.Errorf("failed to marshal history: %+v, err: %+v", histories, err)
+
+		return
+	}
+
+	wa.log.log.Infof("total tokens %d", tokens)
 
 	histories = wa.ai.History(updatedHistories)
 
@@ -147,4 +157,24 @@ func (wa WhatsApp) EventMessage(evt *events.Message) {
 
 func (wa WhatsApp) generateKey(key string, id string) string {
 	return fmt.Sprintf("%s:%s", key, id)
+}
+
+func (wa WhatsApp) GetPromptContext() string {
+	prompt, err := wa.redis.Get(context.Background(), "prompts_context")
+	if err != nil {
+		wa.log.Errorf("failed to get redis key: prompt_context err: %+v", err)
+		return config.GetConfig().Default.Context
+	}
+
+	return prompt
+}
+
+func (wa WhatsApp) GetIntroduceMessage() string {
+	intro, err := wa.redis.Get(context.Background(), "introduce_message")
+	if err != nil {
+		wa.log.Errorf("failed to get redis key: introduce_message err: %+v", err)
+		return config.GetConfig().Default.IntroduceMessage
+	}
+
+	return intro
 }
