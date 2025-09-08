@@ -29,7 +29,7 @@ func (wa *WhatsApp) ItIsHasConversation(ctx context.Context, id string) ([]ai.Hi
 
 	histories, err := ai.UnmarshalHistoryJSONArray([]byte(message))
 	if err != nil {
-		wa.log.log.Errorf("failed to unmarshal history: %s, error: %+v", message, err)
+		wa.log.Errorf("failed to unmarshal history: %s, error: %+v", message, err)
 	}
 
 	return histories, nil
@@ -130,12 +130,12 @@ func (wa WhatsApp) EventMessage(evt *events.Message) {
 
 	tokens, err := wa.ai.CountToken(updatedHistories)
 	if err != nil {
-		wa.log.log.Errorf("failed to marshal history: %+v, err: %+v", histories, err)
+		wa.log.Errorf("failed to marshal history: %+v, err: %+v", histories, err)
 
 		return
 	}
 
-	wa.log.log.Infof("total tokens :%d", tokens)
+	wa.log.Infof("total tokens :%d", tokens)
 
 	histories = wa.ai.History(updatedHistories)
 
@@ -143,7 +143,7 @@ func (wa WhatsApp) EventMessage(evt *events.Message) {
 
 	marshalHistory, err := ai.MarshalHistoryJSONArray(histories)
 	if err != nil {
-		wa.log.log.Errorf("failed to marshal history: %+v, err: %+v", histories, err)
+		wa.log.Errorf("failed to marshal history: %+v, err: %+v", histories, err)
 
 		return
 	}
