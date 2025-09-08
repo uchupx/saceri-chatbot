@@ -7,7 +7,7 @@ services:
       context: .
     volumes:
       - ${ENV_FILE}:/root/.env:Z
-      - ${DEPLOYER_LOG_FILE}:/root/chabot.log:Z
+      - ${DEPLOYER_LOG_FILE}:/root/chatbot.log:Z
     depends_on:
       - chatbot-db
     networks:
