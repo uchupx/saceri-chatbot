@@ -1,11 +1,11 @@
 package whatsapp
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/uchupx/saceri-chatbot/internal/ai/gemini"
+	"github.com/uchupx/saceri-chatbot/internal/config"
 	"github.com/uchupx/saceri-chatbot/internal/redis"
 	"go.mau.fi/whatsmeow"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
@@ -28,7 +28,8 @@ func (wa *WhatsApp) AddClient(client *whatsmeow.Client) {
 }
 
 func NewWhatsApp(redis *redis.WaRedis, ai *gemini.Gemini) *WhatsApp {
-	log := NewLogrusLogger(logrus.New())
+	conf := config.GetConfig()
+	log := NewLogrusLogger(logrus.New(), conf.Log.File, conf.Log.Level, conf.App.Name, conf.App.Version)
 	return &WhatsApp{
 		redis: redis,
 		log:   log,
@@ -38,7 +39,8 @@ func NewWhatsApp(redis *redis.WaRedis, ai *gemini.Gemini) *WhatsApp {
 
 func (wa *WhatsApp) SetID(id string) {
 	wa.id = id
-	fmt.Printf("Set WhatsApp ID to: %s\n", id) // Debug print
+
+	wa.log.Debugf("Set WhatsApp ID to: %s", id)
 }
 
 func (wa *WhatsApp) GetID() string {
@@ -46,11 +48,11 @@ func (wa *WhatsApp) GetID() string {
 }
 
 func (wa *WhatsApp) EventHandler(evt any) {
-	fmt.Printf("Handling event type: %T \n", evt)
 	switch v := evt.(type) {
 	case *events.Message:
+		wa.log.Infof("Received a message from: %s", stripDeviceIdentifier(v.Info.Sender.String()))
+
 		wa.EventMessage(v)
-		fmt.Println("Received a message!", wa.getMessage(v))
 	}
 }
 

@@ -17,27 +17,16 @@ import (
 	"github.com/uchupx/saceri-chatbot/internal/whatsapp"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/store/sqlstore"
-	"go.mau.fi/whatsmeow/types/events"
 	waLog "go.mau.fi/whatsmeow/util/log"
 )
 
-func eventHandler(evt interface{}) {
-	fmt.Printf("Handling event type: %T \n", evt)
-	switch v := evt.(type) {
-	case *events.Message:
-		fmt.Println("Received a message!", v.Message.GetConversation())
-		fmt.Println("Received a message!", v.Message.GetReactionMessage())
-	}
-}
-
 func main() {
-
 	log := logrus.New()
 	log.SetOutput(os.Stdout)
 	log.SetLevel(logrus.DebugLevel)
 	conf := config.GetConfig()
 
-	waLogger := whatsapp.NewLogrusLogger(log)
+	waLogger := whatsapp.NewLogrusLogger(log, conf.Log.File, conf.Log.Level, conf.App.Name, conf.App.Version)
 
 	waRedis, err := redis.GetConnection(redis.RedisConfig{
 		Host: fmt.Sprintf("%s:%d", conf.Redis.Host, conf.Redis.Port),
@@ -66,14 +55,9 @@ func main() {
 	}
 
 	ai := gemini.NewGemini(gemini.GeminiParams{
-		Model: conf.Gemini.Model,
-		Key:   conf.Gemini.Key,
-		BaseContext: `Nama anda adalah minceri dari santunan ceria yang akan membantu menjawab seputar kegiatan amal yang ada di organisasi santunan ceria, berikut jadwal kegiatan amal yang akan datang: 1. 10 September 2025 Santunan anak yatim di yayasan baiturahman dengan target donasi Rp 10.000.000, 2. 10 Desember 2025 Santunan anak yatim di yayasan baiturahman dengan target donasi Rp 50.000.000. 
-
-
-		Untuk Donasi bisa ke rekening ini BCA 123123123123123 a/n Minceri Saceri.
-
-		Fokuskan jawaban Anda pada topik ini jika tidak sesuai topik makan hanya menjawab Maaf, pertanyaan anda tidak sesuai topik`,
+		Model:       conf.Gemini.Model,
+		Key:         conf.Gemini.Key,
+		BaseContext: conf.Default.Context,
 	})
 
 	wa := whatsapp.NewWhatsApp(waRedis, ai)
@@ -90,9 +74,10 @@ func main() {
 		}
 		for evt := range qrChan {
 			if evt.Event == "code" {
+				waLogger.Infof("Scan QR code on terminal")
 				qrterminal.Generate(evt.Code, qrterminal.M, os.Stdout)
 			} else {
-				fmt.Println("Login event:", evt.Event)
+				waLogger.Infof("Connected to WhatsApp!")
 			}
 		}
 	} else {

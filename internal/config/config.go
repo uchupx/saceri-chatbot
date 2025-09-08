@@ -14,6 +14,10 @@ var configPath = []string{
 }
 
 type Config struct {
+	App struct {
+		Name    string
+		Version string
+	}
 	Gemini struct {
 		Model string
 		Key   string
@@ -38,6 +42,11 @@ type Config struct {
 		Password string
 		Name     string
 		Username string
+	}
+
+	Log struct {
+		File  string
+		Level string
 	}
 }
 
@@ -78,6 +87,13 @@ func new() *Config {
 
 	config.Default.Context = os.Getenv("DEFAULT_CONTEXT")
 	config.Default.IntroduceMessage = os.Getenv("DEFAULT_INTRODUCE_MESSAGE")
+
+	config.Log.File = os.Getenv("LOG_FILE")
+	config.Log.Level = os.Getenv("LOG_LEVEL")
+
+	config.App.Name = os.Getenv("APP_NAME")
+	config.App.Version = os.Getenv("APP_VERSION")
+
 	return config
 }
 

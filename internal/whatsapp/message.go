@@ -135,7 +135,7 @@ func (wa WhatsApp) EventMessage(evt *events.Message) {
 		return
 	}
 
-	wa.log.log.Infof("total tokens %d", tokens)
+	wa.log.log.Infof("total tokens :%d", tokens)
 
 	histories = wa.ai.History(updatedHistories)
 

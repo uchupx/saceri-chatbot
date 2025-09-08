@@ -71,7 +71,7 @@ func (g Gemini) Chat(prompt string, userInput string, history []*genai.Content) 
 	chat := model.StartChat()
 
 	if len(history) == 0 {
-		fmt.Println(prompt)
+
 		history = append(history, &genai.Content{
 			Role:  "model",
 			Parts: []genai.Part{genai.Text(prompt)},
