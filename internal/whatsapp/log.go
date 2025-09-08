@@ -1,3 +1,4 @@
+
 package whatsapp
 
 import (
@@ -9,7 +10,8 @@ import (
 )
 
 type LogrusLogger struct {
-	log *logrus.Logger
+	log    *logrus.Logger
+	fields logrus.Fields
 }
 
 var mapLevel = map[string]logrus.Level{
@@ -38,27 +40,39 @@ func NewLogrusLogger(log *logrus.Logger, fileLog string, level string, appName s
 		},
 	})
 
-	log = log.WithFields(logrus.Fields{"app_name": appName, "app_version": ver}).Logger
+	fields := logrus.Fields{"app_name": appName, "app_version": ver}
 
-	return &LogrusLogger{log: log}
+	return &LogrusLogger{
+		log:    log,
+		fields: fields,
+	}
 }
 
 func (l *LogrusLogger) Debugf(msg string, args ...interface{}) {
-	l.log.Debugf(msg, args...)
+	l.log.WithFields(l.fields).Debugf(msg, args...)
 }
 
 func (l *LogrusLogger) Infof(msg string, args ...interface{}) {
-	l.log.Infof(msg, args...)
+	l.log.WithFields(l.fields).Infof(msg, args...)
 }
 
 func (l *LogrusLogger) Warnf(msg string, args ...interface{}) {
-	l.log.Warnf(msg, args...)
+	l.log.WithFields(l.fields).Warnf(msg, args...)
 }
 
 func (l *LogrusLogger) Errorf(msg string, args ...interface{}) {
-	l.log.Errorf(msg, args...)
+	l.log.WithFields(l.fields).Errorf(msg, args...)
 }
 
 func (l *LogrusLogger) Sub(module string) waLog.Logger {
-	return &LogrusLogger{log: l.log.WithField("module", module).Logger}
+	newFields := make(logrus.Fields)
+	for k, v := range l.fields {
+		newFields[k] = v
+	}
+	newFields["module"] = module
+
+	return &LogrusLogger{
+		log:    l.log,
+		fields: newFields,
+	}
 }
